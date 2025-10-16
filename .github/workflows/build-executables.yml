@@ -30,7 +30,7 @@ jobs:
           npm install
       
       - name: Build Windows executable
-        run: pyinstaller --onefile --name="xPedite" --add-data "templates;templates" liveServer.py
+        run: pyinstaller --onefile --name="xPedite" --add-data "templates;templates" --hidden-import="reportlab.graphics.barcode.code128" liveServer.py
       
       - name: Upload Windows artifact
         uses: actions/upload-artifact@v4 # <-- Updated from v3
