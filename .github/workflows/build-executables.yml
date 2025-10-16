@@ -62,7 +62,7 @@ jobs:
           npm install
       
       - name: Build macOS application
-        run: pyinstaller --onefile --name="xPedite" --add-data "templates:templates" liveServer.py
+        run: pyinstaller --onefile --windowed --name="xPedite" --add-data "templates:templates" liveServer.py
       
       - name: Zip the .app
         run: zip -r xPedite-macOS.zip dist/xPedite.app
