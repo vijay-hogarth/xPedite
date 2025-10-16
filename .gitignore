@@ -23,3 +23,6 @@ generated_pdfs/
 # Node modules
 /node_modules/
 puppeteer_pdf_generator/node_modules/
+
+# User uploads folder
+uploads/
