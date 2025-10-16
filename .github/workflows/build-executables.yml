@@ -5,6 +5,7 @@ name: Build Python Executables
 on:
 push:
   branches: [ "main" ]
+  workflow_dispatch: # 
 
 jobs:
 # --- JOB 1: BUILD FOR WINDOWS ---
