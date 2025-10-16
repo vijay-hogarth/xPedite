@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>xPdite</title>
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+    
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        padding: 20px;
+    }
+    
+    .container {
+        max-width: 800px;
+        margin: 0 auto;
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        overflow: hidden;
+    }
+    
+    .header {
+        background: linear-gradient(45deg, #667eea, #764ba2);
+        color: white;
+        padding: 40px;
+        text-align: center;
+    }
+    
+    .header h1 {
+        font-size: 2.5em;
+        margin-bottom: 10px;
+    }
+    
+    .header p {
+        font-size: 1.2em;
+        opacity: 0.9;
+    }
+    
+    .content {
+        padding: 40px;
+    }
+    
+    .upload-area {
+        border: 3px dashed #667eea;
+        border-radius: 15px;
+        padding: 60px 20px;
+        text-align: center;
+        margin-bottom: 30px;
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+    
+    .upload-area:hover {
+        border-color: #764ba2;
+        background: #f8f9ff;
+    }
+    
+    .upload-area.dragover {
+        border-color: #28a745;
+        background: #f0fff4;
+    }
+    
+    .upload-icon {
+        font-size: 4em;
+        color: #667eea;
+        margin-bottom: 20px;
+    }
+    
+    .upload-text {
+        font-size: 1.3em;
+        color: #333;
+        margin-bottom: 15px;
+    }
+    
+    .upload-hint {
+        color: #666;
+        margin-bottom: 20px;
+    }
+    
+    .file-input {
+        display: none;
+    }
+    
+    .btn {
+        background: linear-gradient(45deg, #667eea, #764ba2);
+        color: white;
+        border: none;
+        padding: 15px 30px;
+        border-radius: 10px;
+        font-size: 1.1em;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-block;
+    }
+    
+    .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+    }
+    
+    .btn-secondary {
+        background: #6c757d;
+        margin-left: 10px;
+    }
+    
+    .form-group {
+        margin-bottom: 25px;
+    }
+    
+    .form-label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 600;
+        color: #333;
+    }
+    
+    .form-input {
+        width: 100%;
+        padding: 12px 15px;
+        border: 2px solid #e0e0e0;
+        border-radius: 8px;
+        font-size: 1em;
+        transition: border-color 0.3s ease;
+    }
+    
+    .form-input:focus {
+        outline: none;
+        border-color: #667eea;
+    }
+    
+    .file-list {
+        margin-top: 20px;
+        padding: 20px;
+        background: #f8f9ff;
+        border-radius: 10px;
+        border: 1px solid #e0e0e0;
+    }
+    
+    .file-item {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        padding: 15px;
+        background: white;
+        border-radius: 8px;
+        margin-bottom: 10px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .file-item:last-child {
+        margin-bottom: 0;
+    }
+    
+    .file-info {
+        flex: 1;
+        min-width: 0;
+    }
+    
+    .file-name {
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 4px;
+        word-break: break-word;
+    }
+    
+    .file-details {
+        display: flex;
+        gap: 15px;
+        font-size: 12px;
+        color: #666;
+    }
+    
+    .file-actions {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        flex-shrink: 0;
+    }
+    
+    .file-remove {
+        background: #ff4757;
+        color: white;
+        border: none;
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        cursor: pointer;
+        font-size: 12px;
+        font-weight: bold;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .file-remove:hover {
+        background: #ff3742;
+        transform: scale(1.1);
+    }
+    
+    .alert {
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+    }
+    
+    .alert-success {
+        background: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+    }
+    
+    .alert-error {
+        background: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+    }
+    
+    .nav-links {
+        text-align: center;
+        margin-top: 30px;
+    }
+    
+    /* Preview Modal Styles */
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0,0,0,0.5);
+    }
+    
+    .modal-content {
+        background-color: white;
+        margin: 2% auto;
+        padding: 0;
+        border-radius: 15px;
+        width: 95%;
+        max-width: 1200px;
+        height: 90%;
+        position: relative;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .modal-header {
+        background: linear-gradient(45deg, #667eea, #764ba2);
+        color: white;
+        padding: 20px;
+        border-radius: 15px 15px 0 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .modal-header h2 {
+        margin: 0;
+    }
+    
+    .close {
+        color: white;
+        font-size: 28px;
+        font-weight: bold;
+        cursor: pointer;
+        background: none;
+        border: none;
+    }
+    
+    .close:hover {
+        opacity: 0.7;
+    }
+    
+    .modal-body {
+        padding: 20px;
+        flex: 1;
+        overflow-y: auto;
+    }
+    
+    .preview-frame {
+        width: 100%;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        background: white;
+        display: flex;
+        justify-content: center;
+        padding: 10px;
+        min-height: 400px;
+    }
+    
+    .modal-footer {
+        padding: 20px;
+        border-top: 1px solid #e0e0e0;
+        text-align: center;
+        background: #f8f9fa;
+        border-radius: 0 0 15px 15px;
+    }
+    
+    .preview-loading {
+        text-align: center;
+        padding: 40px;
+        color: #666;
+        font-size: 16px;
+    }
+    
+    .preview-error {
+        background: #f8d7da;
+        color: #721c24;
+        padding: 15px;
+        border-radius: 8px;
+        border: 1px solid #f5c6cb;
+        margin-bottom: 20px;
+    }
+    
+    .device-btn {
+        background: #f8f9fa;
+        border: 1px solid #dee2e6;
+        padding: 8px 12px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 12px;
+        transition: all 0.2s ease;
+    }
+    
+    .device-btn:hover {
+        background: #e9ecef;
+    }
+    
+    .device-btn.active {
+        background: #667eea;
+        color: white;
+        border-color: #667eea;
+    }
+</style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1>📄 xPdite</h1>
+        <p>Upload files and get a combined PDF instantly!</p>
+    </div>
+    
+    <div class="content">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ 'success' if category == 'success' else 'error' }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        
+        <form method="POST" action="/upload" enctype="multipart/form-data" id="uploadForm">
+            <div class="upload-area">
+                <div class="upload-icon">☁️</div>
+                <div class="upload-text">Click to select files or drag & drop</div>
+                <div class="upload-hint">
+                    Support: HTML, PDF, JPG, PNG, GIF, ZIP
+                </div>
+                <input type="file" id="fileInput" name="files" multiple accept=".html,.htm,.pdf,.jpg,.jpeg,.png,.gif,.zip" class="file-input">
+            </div>
+            
+            <div class="form-group">
+                <label for="baseUrl" class="form-label">🌐 Base URL (Optional)</label>
+                <input type="url" id="baseUrl" name="base_url" class="form-input" 
+                       placeholder="https://example.com - For converting relative links in HTML files">
+            </div>
+            
+            <div class="form-group">
+                <label for="baseFilename" class="form-label">📄 Output Filename (Optional)</label>
+                <input type="text" id="baseFilename" name="base_filename" class="form-input" value="document"
+                       placeholder="e.g., my-report">
+            </div>
+            
+            <div id="fileList" class="file-list" style="display: none;">
+                <h4>Selected Files:</h4>
+            </div>
+            
+            <div style="text-align: center; margin-top: 30px;">
+                <button type="submit" class="btn">🚀 Generate PDF</button>
+                <button type="button" class="btn btn-secondary" onclick="previewFiles()">
+                    👁️ Preview HTML
+                </button>
+                <button type="button" class="btn" onclick="exportImages()" style="margin-left: 10px; background: #28a745;">
+                    🖼️ Export Images
+                </button>
+            </div>
+        </form>
+        
+        <div class="nav-links">
+            <a href="/files" class="btn btn-secondary">📁 View Generated PDFs</a>
+            <a href="/exported_images_gallery" class="btn btn-secondary">🖼️ View Exported Images</a>
+        </div>
+    </div>
+</div>
+
+<!-- Preview Modal -->
+<div id="previewModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>📋 HTML Preview</h2>
+            <button class="close" onclick="closePreview()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div id="previewLoading" class="preview-loading">
+                <div>🔄 Loading preview...</div>
+            </div>
+            <div id="previewError" class="preview-error" style="display: none;"></div>
+            
+            <!-- Device Selection Controls -->
+            <div id="deviceControls" style="display: none; background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #e0e0e0;">
+                <h4 style="margin: 0 0 10px 0; color: #333;">📱 Device Preview</h4>
+                <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                    <button class="device-btn" onclick="changeDevicePreview(this.getAttribute('data-width'), this.getAttribute('device-type'))" data-width="320" device-type="mobile">📱 Mobile</button>
+                    <button class="device-btn" onclick="changeDevicePreview(this.getAttribute('data-width'), this.getAttribute('device-type'))" data-width="375" device-type="mobile">📱 iPhone</button>
+                    <button class="device-btn" onclick="changeDevicePreview(this.getAttribute('data-width'), this.getAttribute('device-type'))" data-width="768" device-type="desktop">📱 Tablet</button>
+                    <button class="device-btn" onclick="changeDevicePreview(this.getAttribute('data-width'), this.getAttribute('device-type'))" data-width="360" device-type="desktop">📱 Email Mobile</button>
+                    <button class="device-btn" onclick="changeDevicePreview(this.getAttribute('data-width'), this.getAttribute('device-type'))" data-width="600" device-type="desktop">💻 Email Desktop</button>
+                    <button class="device-btn active" onclick="changeDevicePreview(this.getAttribute('data-width'), this.getAttribute('device-type'))" data-width="1024" device-type="desktop">💻 Desktop</button>
+                    <button class="device-btn" onclick="changeDevicePreview(this.getAttribute('data-width'), this.getAttribute('device-type'))" data-width="1440" device-type="desktop">🖥️ Large</button>
+                    <button class="device-btn" onclick="changeDevicePreview(this.getAttribute('data-width'), this.getAttribute('device-type'))" data-width="1920" device-type="desktop">🖥️ Full HD</button>
+                    <span style="margin-left: 15px; color: #666; font-size: 14px;" id="currentDevice">Width: 1024px</span>
+                    <span style="margin-left: 15px; color: #666; font-size: 14px;" id="currentHeight">Height: 768px</span>
+                    <!-- Custom Resolution and Type -->
+                    <input type="text" style="margin-left: 15px; color: #666; font-size: 14px; height: 34px;text-align: center;border: 1px solid #e5eaff;border-radius: 5px;" id="customWidth" placeholder="Enter custom width" />
+                    <select id="customDeviceType" style="height: 34px; border: 1px solid #e5eaff; border-radius: 5px; font-size: 14px;">
+                        <option selected value="desktop">💻 Desktop</option>
+                        <option value="mobile">📱 Mobile</option>
+                    </select>
+                    <button class="device-btn" id="customSetting" onclick="changeDevicePreview(document.getElementById('customWidth').value, document.getElementById('customDeviceType').value)" >Set Custom</button>
+                </div>
+            </div>
+            
+            <div id="previewContainer"></div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn" onclick="generateFromPreview()">
+                ✅ Looks Good - Generate PDF
+            </button>
+            <button class="btn btn-secondary" onclick="closePreview()">
+                ❌ Cancel
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const uploadArea = document.querySelector('.upload-area');
+    const fileInput = document.getElementById('fileInput');
+    const fileList = document.getElementById('fileList');
+    
+    uploadArea.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        uploadArea.classList.add('dragover');
+    });
+    
+    uploadArea.addEventListener('dragleave', () => {
+        uploadArea.classList.remove('dragover');
+    });
+    
+    uploadArea.addEventListener('drop', (e) => {
+        e.preventDefault();
+        uploadArea.classList.remove('dragover');
+        fileInput.files = e.dataTransfer.files;
+        updateFileList();
+    });
+    
+    fileInput.addEventListener('change', () => {
+        updateFileList();
+    });
+    
+    uploadArea.addEventListener('click', () => {
+        fileInput.click();
+    });
+    
+    function updateFileList() {
+        const files = fileInput.files;
+        if (files.length > 0) {
+            fileList.style.display = 'block';
+            let listHtml = '<h4>Selected Files:</h4>';
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                listHtml += `
+                    <div class="file-item">
+                        <div class="file-info">
+                            <div class="file-name">${file.name}</div>
+                            <div class="file-details">
+                                <span>${(file.size / 1024).toFixed(1)} KB</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+            fileList.innerHTML = listHtml;
+        } else {
+            fileList.style.display = 'none';
+        }
+    }
+
+    function closePreview() {
+        const modal = document.getElementById('previewModal');
+        modal.style.display = 'none';
+    }
+
+    function exportImages() {
+        const form = document.getElementById('uploadForm');
+        const originalAction = form.action;
+        form.action = '/export_images';
+        form.method = 'POST';
+        form.submit();
+        form.action = originalAction;
+    }
+
+    function previewFiles() {
+const fileInput = document.getElementById('fileInput');
+const files = fileInput.files;
+
+if (files.length === 0 || !Array.from(files).some(f => f.name.toLowerCase().endsWith('.html') || f.name.toLowerCase().endsWith('.htm'))) {
+    alert('⚠️ Please select at least one HTML file to preview!');
+    return;
+}
+
+const modal = document.getElementById('previewModal');
+const loading = document.getElementById('previewLoading');
+const error = document.getElementById('previewError');
+const previewContainer = document.getElementById('previewContainer');
+
+modal.style.display = 'block';
+loading.style.display = 'block';
+error.style.display = 'none';
+previewContainer.innerHTML = ''; // Clear previous previews
+
+const formData = new FormData(document.getElementById('uploadForm'));
+const activeDeviceBtn = document.querySelector('.device-btn.active');
+const deviceWidth = activeDeviceBtn ? activeDeviceBtn.getAttribute('data-width') : '1024';
+const deviceType = activeDeviceBtn ? activeDeviceBtn.getAttribute('device-type') : 'desktop';
+formData.append('device_width', deviceWidth);
+
+fetch('/preview', { method: 'POST', body: formData })
+.then(response => response.json())
+.then(data => {
+    loading.style.display = 'none';
+    if (data.success && data.html_files.length > 0) {
+        document.getElementById('deviceControls').style.display = 'block';
+        
+        // For simplicity, we will preview and generate a PDF for the FIRST HTML file only.
+        const file = data.html_files[0];
+        const safeContent = file.content.replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+        
+        const previewHtml = `
+            <div class="preview-file">
+                <div class="preview-header"><h4>📄 ${file.filename}</h4></div>
+                <div class="preview-frame">
+                    <iframe id="previewIframe" srcdoc="${safeContent}" 
+                            style="width: ${file.device_width}px; max-width: 100%; border: 1px solid #ddd; background: white; display: block; margin: 0 auto; height: 500px; border-width: 0 !important;">
+                    </iframe>
+                </div>
+            </div>
+        `;
+        previewContainer.innerHTML = previewHtml;
+        
+        const iframe = document.getElementById('previewIframe');
+        // This onload handler is now for VISUAL PREVIEW ONLY.
+        // It makes the iframe in the modal look correct, but its measurements are not sent to the backend.
+        iframe.onload = () => {
+            // Use setTimeout to wait for the browser's next rendering cycle.
+            // This ensures the content inside the iframe has been fully laid out before we measure it.
+            setTimeout(() => {
+                const iframeDoc = iframe.contentWindow.document;
+                const contentHeight = iframeDoc.body.scrollHeight;
+
+                // Set the iframe's visual height to match the content for a better preview.
+                iframe.style.height = `${contentHeight}px`;
+                
+                console.log(`Visual preview resized to height: ${contentHeight}px`);
+            }, 100); // A 100ms delay is a safe buffer.
+        };
+
+        // Store the temp_dir for the generateFromPreview function to use.
+        window.previewTempDir = data.temp_dir;
+    } else {
+        error.innerHTML = `❌ ${data.error || 'No HTML files found to preview'}`;
+        error.style.display = 'block';
+    }
+})
+.catch(err => {
+    loading.style.display = 'none';
+    error.innerHTML = `❌ Error loading preview: ${err.message}`;
+    error.style.display = 'block';
+});
+}
+
+function generateFromPreview() {
+console.log('Generating PDF from preview...');
+
+if (!window.previewTempDir) {
+    alert('❌ No preview session found. Please preview files first.');
+    return;
+}
+
+// Get the currently selected device width from the active button.
+const activeDeviceBtn = document.querySelector('.device-btn.active');
+const deviceWidth = activeDeviceBtn ? activeDeviceBtn.getAttribute('data-width') : '1024';
+
+// Show loading state
+const loadingDiv = document.getElementById('pdfGenerationLoading') || document.createElement('div');
+loadingDiv.id = 'pdfGenerationLoading';
+loadingDiv.innerHTML = '<div style="text-align: center; padding: 20px;"><div>🔄 Generating PDF...</div></div>';
+loadingDiv.style.position = 'fixed';
+loadingDiv.style.top = '50%';
+loadingDiv.style.left = '50%';
+loadingDiv.style.transform = 'translate(-50%, -50%)';
+loadingDiv.style.background = 'white';
+loadingDiv.style.padding = '20px';
+loadingDiv.style.borderRadius = '8px';
+loadingDiv.style.boxShadow = '0 4px 6px rgba(0,0,0,0.1)';
+loadingDiv.style.zIndex = '10000';
+document.body.appendChild(loadingDiv);
+
+const formData = new FormData();
+formData.append('temp_dir', window.previewTempDir);
+// We ONLY send the device_width. The height is no longer measured or sent from the frontend.
+formData.append('device_width', deviceWidth);
+formData.append('base_filename', document.getElementById('baseFilename').value);
+
+fetch('/generate_from_preview', { method: 'POST', body: formData })
+.then(response => response.json())
+.then(data => {
+    if (loadingDiv) loadingDiv.remove();
+    console.log(data);
+    if (data.success) {
+        closePreview();
+        alert(`✅ PDF generated successfully: ${data.pdf_filename}`);
+        window.location.href = data.download_url;
+    } else {
+        alert(`❌ Error generating PDF: ${data.error || 'Unknown error'}`);
+    }
+})
+.catch(err => {
+    if (loadingDiv) loadingDiv.remove();
+    console.error('PDF generation error:', err);
+    alert(`❌ Error generating PDF: ${err.message}`);
+});
+}
+
+function changeDevicePreview(width, deviceType) {
+    var customSetting = document.getElementById('customSetting');
+    customSetting.setAttribute('data-width',width);
+    customSetting.setAttribute('device-type', deviceType);
+    setTimeout(function(){
+        const iframe = document.getElementById('previewIframe');
+        if (!iframe) return;
+
+        iframe.style.width = width + 'px';
+
+        // This re-measurement logic is also for VISUAL PREVIEW ONLY.
+        iframe.onload = () => {
+            setTimeout(() => {
+                const iframeDoc = iframe.contentWindow.document;
+                const contentHeight = iframeDoc.body.scrollHeight;
+                iframe.style.height = `${contentHeight}px`;
+                document.getElementById('currentHeight').textContent = `Height: ${iframe.style.height}`;
+                console.log(`Visual preview re-measured for ${width}px. New height: ${contentHeight}h`);
+            }, 100);
+        };
+        // Force a re-layout to trigger onload
+        iframe.srcdoc = iframe.srcdoc; 
+
+        // Update UI
+        if( document.getElementById('customWidth').value != '' ) {
+            
+            document.querySelectorAll('.device-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById('customSetting').classList.add('active');
+            document.getElementById('currentDevice').textContent = `Width: ${document.getElementById('customWidth').value}px`;
+        } else {
+            document.querySelectorAll('.device-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelector(`[data-width="${width}"]`).classList.add('active');
+            document.getElementById('currentDevice').textContent = `Width: ${width}px`;
+        }
+    }, 100);
+   
+}
+    
+</script>
+</body>
+</html>

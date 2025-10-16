@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Exported Images Gallery - xPdite</title>
+<style>
+    /* Re-use common styles from index.html and files.html */
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        padding: 20px;
+        color: #333;
+    }
+    .container {
+        max-width: 1000px; /* Wider for gallery */
+        margin: 0 auto;
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        overflow: hidden;
+        padding: 40px;
+    }
+    .header {
+        background: linear-gradient(45deg, #667eea, #764ba2);
+        color: white;
+        padding: 30px;
+        text-align: center;
+        border-radius: 15px 15px 0 0;
+        margin: -40px -40px 40px -40px;
+    }
+    .header h1 {
+        font-size: 2em;
+        margin-bottom: 10px;
+    }
+    .btn {
+        background: linear-gradient(45deg, #667eea, #764ba2);
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 8px;
+        font-size: 1em;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-block;
+    }
+    .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 10px rgba(0,0,0,0.2);
+    }
+    .btn-danger {
+        background: #dc3545;
+    }
+    .btn-danger:hover {
+        background: #c82333;
+    }
+    .alert {
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+    }
+    .alert-success {
+        background: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+    }
+    .alert-error {
+        background: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+    }
+    .no-images {
+        text-align: center;
+        padding: 30px;
+        color: #6c757d;
+        font-size: 1.1em;
+    }
+
+    /* Gallery Specific Styles */
+    .image-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 25px;
+        margin-top: 30px;
+    }
+    .image-card {
+        background: #f8f9fa;
+        border-radius: 15px;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .image-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 25px rgba(0,0,0,0.15);
+    }
+    .image-preview {
+        width: 100%;
+        height: 200px;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: #e9ecef;
+        border-bottom: 1px solid #dee2e6;
+    }
+    .image-preview img {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain; /* Ensures entire image is visible */
+    }
+    .image-info {
+        padding: 15px;
+        flex-grow: 1;
+    }
+    .image-name {
+        font-weight: 600;
+        margin-bottom: 8px;
+        word-break: break-all;
+        color: #343a40;
+    }
+    .image-details {
+        font-size: 0.85em;
+        color: #6c757d;
+        margin-bottom: 15px;
+    }
+    .image-actions {
+        display: flex;
+        justify-content: space-between;
+        padding: 15px;
+        border-top: 1px solid #dee2e6;
+        background: #e9ecef;
+    }
+    .image-actions .btn {
+        padding: 8px 15px;
+        font-size: 0.9em;
+        border-radius: 6px;
+    }
+</style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1>🖼️ Exported Images Gallery</h1>
+        <p>Browse and download your processed images and PDF extractions.</p>
+    </div>
+    
+    <div class="content">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ 'success' if category == 'success' else 'error' }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        {% if images %}
+            <div class="image-grid">
+                {% for image in images %}
+                    <div class="image-card">
+                        <div class="image-preview">
+                            <img src="{{ image.image_url }}" alt="{{ image.name }}">
+                        </div>
+                        <div class="image-info">
+                            <div class="image-name">{{ image.name }}</div>
+                            <div class="image-details">
+                                Size: {{ image.size }}<br>
+                                Modified: {{ image.modified }}
+                            </div>
+                        </div>
+                        <div class="image-actions">
+                            <a href="{{ image.view_url }}" class="btn btn-small btn-secondary" target="_blank">👁️ View</a>
+                            <a href="{{ image.download_url }}" class="btn">⬇️ Download</a>
+                            <a href="{{ image.delete_url }}" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete {{ image.name }}?');">🗑️ Delete</a>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="no-images">
+                <p>No exported images found yet. Use the "Export Images" feature on the home page to create some!</p>
+            </div>
+        {% endif %}
+
+        <div style="text-align: center; margin-top: 40px;">
+            <a href="/" class="btn">🏠 Back to Home</a>
+        </div>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,25 @@
+# Virtual Environment
+venv/
+.venv/
+env/
+.env/
+
+# Python cache
+__pycache__/
+*.pyc
+
+# PyInstaller build files
+/dist/
+/build/
+*.spec
+
+# IDE files
+.idea/
+.vscode/
+
+# Distribution Folder
+generated_pdfs/
+
+# Node modules
+/node_modules/
+puppeteer_pdf_generator/node_modules/

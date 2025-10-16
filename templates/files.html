@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Generated Files - xPdite</title>
+<style>
+    /* Re-use some styles from index.html or define new ones */
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        padding: 20px;
+        color: #333;
+    }
+    .container {
+        max-width: 900px;
+        margin: 0 auto;
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        overflow: hidden;
+        padding: 40px;
+    }
+    .header {
+        background: linear-gradient(45deg, #667eea, #764ba2);
+        color: white;
+        padding: 30px;
+        text-align: center;
+        border-radius: 15px 15px 0 0;
+        margin: -40px -40px 40px -40px; /* Adjust to fit container */
+    }
+    .header h1 {
+        font-size: 2em;
+        margin-bottom: 10px;
+    }
+    .btn {
+        background: linear-gradient(45deg, #667eea, #764ba2);
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 8px;
+        font-size: 1em;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-block;
+    }
+    .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 10px rgba(0,0,0,0.2);
+    }
+    .btn-danger {
+        background: #dc3545;
+    }
+    .btn-danger:hover {
+        background: #c82333;
+    }
+    .file-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+        background: #f8f9fa;
+        border-radius: 10px;
+        overflow: hidden;
+    }
+    .file-table th, .file-table td {
+        padding: 12px 15px;
+        text-align: left;
+        border-bottom: 1px solid #dee2e6;
+    }
+    .file-table th {
+        background-color: #e9ecef;
+        font-weight: 600;
+        color: #495057;
+    }
+    .file-table tbody tr:last-child td {
+        border-bottom: none;
+    }
+    .file-table tbody tr:hover {
+        background-color: #e2e6ea;
+    }
+    .alert {
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+    }
+    .alert-success {
+        background: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+    }
+    .alert-error {
+        background: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+    }
+    .no-files {
+        text-align: center;
+        padding: 30px;
+        color: #6c757d;
+        font-size: 1.1em;
+    }
+</style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1>📁 Generated Files</h1>
+        <p>All your created PDFs and processed images in one place.</p>
+    </div>
+    
+    <div class="content">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ 'success' if category == 'success' else 'error' }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        {% if files %}
+            <table class="file-table">
+                <thead>
+                    <tr>
+                        <th>File Name</th>
+                        <th>Size</th>
+                        <th>Last Modified</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for file in files %}
+                        <tr>
+                            <td>{{ file.name }}</td>
+                            <td>{{ file.size }}</td>
+                            <td>{{ file.modified }}</td>
+                            <td>
+                                <a href="{{ file.view_url }}" class="btn btn-small btn-secondary" target="_blank">👁️ View</a>
+                                <a href="{{ file.download_url }}" class="btn btn-small">⬇️ Download</a>
+                                <a href="{{ file.delete_url }}" class="btn btn-small btn-danger" onclick="return confirm('Are you sure you want to delete {{ file.name }}?');">🗑️ Delete</a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <div class="no-files">
+                <p>No files have been generated yet. Go back to the main page to create some!</p>
+            </div>
+        {% endif %}
+
+        <div style="text-align: center; margin-top: 30px;">
+            <a href="/" class="btn">🏠 Back to Home</a>
+        </div>
+    </div>
+</div>
+</body>
+</html>
