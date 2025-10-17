@@ -1,4 +1,8 @@
-name: Build Python Executables
+name: Build executable with PyInstaller
+  run:| 
+    pyinstaller --noconfirm --onefile --windowed \
+    --collect-submodules=reportlab \
+    your_script_name.py
 
 on:
   push:
