@@ -2,10 +2,9 @@ const puppeteer = require('puppeteer');
 const fs = require('fs');
 
 async function generateExactPdf() {
-    // ==================== CORRECTED CODE BLOCK ====================
     // Parse arguments passed from Python
     const args = JSON.parse(process.argv[2]);
-    const htmlPath = args.htmlPath;          // <-- FIXED: Get the file path
+    const htmlPath = args.htmlPath;
     const outputPath = args.outputPath;
     const deviceWidth = args.deviceWidth || 610; // default width if not provided
     const viewType = args.viewType || 'desktop'; // 'mobile' or 'desktop'
@@ -15,8 +14,7 @@ async function generateExactPdf() {
         console.error('❌ Error: HTML input file path is missing or does not exist.');
         process.exit(1);
     }
-    const htmlContent = fs.readFileSync(htmlPath, 'utf8'); // <-- FIXED: Read the content from the file
-    // =============================================================
+    const htmlContent = fs.readFileSync(htmlPath, 'utf8');
 
     let browser;
     try {
@@ -29,12 +27,14 @@ async function generateExactPdf() {
             ]
         });
         const page = await browser.newPage();
+        
         // Determine viewport width
         const defaultDesktopWidth = 600;
         const mobileWidth = 360;
         let viewportWidth;
         let pdfTitle;
         let deviceScaleFactor = 2;
+
         if (viewType === 'mobile') {
             viewportWidth = mobileWidth;
             pdfTitle = 'Mobile View PDF';
@@ -45,13 +45,15 @@ async function generateExactPdf() {
             viewportWidth = defaultDesktopWidth;
             pdfTitle = 'Desktop View PDF';
         }
+        
         // Set initial viewport
         await page.setViewport({
             width: viewportWidth,
-            height: 800,
+            height: 800, // Initial height, will be adjusted
             deviceScaleFactor: deviceScaleFactor,
             isMobile: (viewType === 'mobile')
         });
+        
         // Ensure HTML is complete
         let finalHtmlContent = htmlContent;
         if (!finalHtmlContent.includes('<html')) {
@@ -60,6 +62,7 @@ async function generateExactPdf() {
         if (!finalHtmlContent.includes('<head>')) {
             finalHtmlContent = finalHtmlContent.replace('<body>', '<head></head><body>');
         }
+        
         // Add meta viewport for mobile scaling
         const metaViewportTag = `<meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">`;
         if (!finalHtmlContent.includes('<meta name="viewport"')) {
@@ -70,6 +73,7 @@ async function generateExactPdf() {
                     finalHtmlContent.substring(headEndIndex);
             }
         }
+        
         // Add title if missing
         const htmlTitleContent = pdfTitle.replace(' PDF', '');
         if (!finalHtmlContent.includes('<title>')) {
@@ -80,16 +84,19 @@ async function generateExactPdf() {
                     finalHtmlContent.substring(headStartTagIndex + '<head>'.length);
             }
         }
+        
         // Load HTML into Puppeteer
         await page.setContent(finalHtmlContent, { waitUntil: 'networkidle0' });
         await page.emulateMediaType('screen');
-        // Wait for images and fonts
+        
+        // Wait for images and fonts to be fully loaded
         await page.waitForFunction(() => {
             const images = Array.from(document.querySelectorAll('img'));
             return images.every(img => img.complete || img.naturalWidth === 0);
         }, { timeout: 10000 }).catch(() => console.log('Some images might not have loaded within timeout.'));
         await page.evaluateHandle('document.fonts.ready');
-        await new Promise(resolve => setTimeout(resolve, 500));
+        await new Promise(resolve => setTimeout(resolve, 500)); // Extra wait for rendering
+        
         // Measure exact content height
         const contentHeight = await page.evaluate(() => {
             let lastVisibleElement = null;
@@ -114,6 +121,7 @@ async function generateExactPdf() {
             }
             return Math.ceil(document.body.getBoundingClientRect().bottom);
         });
+        
         // Adjust viewport to match content height
         await page.setViewport({
             width: viewportWidth,
@@ -121,9 +129,11 @@ async function generateExactPdf() {
             deviceScaleFactor: deviceScaleFactor,
             isMobile: (viewType === 'mobile')
         });
-        // Convert px → inches for PDF size
+        
+        // Convert px -> inches for PDF size
         const pdfWidthInches = viewportWidth / 96;
         const pdfHeightInches = contentHeight / 96;
+        
         // Generate PDF
         await page.pdf({
             path: outputPath,
@@ -135,8 +145,10 @@ async function generateExactPdf() {
             preferCSSPageSize: true,
             displayHeaderFooter: false
         });
+        
         console.log(`✅ PDF generated successfully at ${outputPath}`);
         process.exit(0);
+
     } catch (error) {
         console.error('❌ Error generating PDF:', error);
         process.exit(1);
@@ -146,4 +158,5 @@ async function generateExactPdf() {
         }
     }
 }
+
 generateExactPdf();
