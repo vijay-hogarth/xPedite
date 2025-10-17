@@ -31,7 +31,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
           # Install Node.js dependencies inside the correct folder
-          npm install --prefix puppeteer_pdf_generator
+          npm install 
 
       - name: Build Windows executable
         run: >
