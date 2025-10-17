@@ -1,50 +1,63 @@
-arabic-reshaper==3.0.0
-asn1crypto==1.5.1
-beautifulsoup4==4.13.5
+# == Core Web Application ==
+# Flask is the web framework, and these are its essential components.
+Flask==3.1.2
 blinker==1.9.0
+click==8.2.1
+itsdangerous==2.2.0
+Jinja2==3.1.6
+MarkupSafe==3.0.2
+Werkzeug==3.1.3
+
+# == PDF & HTML Processing ==
+# The main libraries for creating PDFs from HTML and parsing HTML content.
+xhtml2pdf==0.2.17
+beautifulsoup4==4.13.5
+html5lib==1.1         # Dependency for xhtml2pdf/beautifulsoup
+lxml==6.0.1           # High-performance XML and HTML parser
+soupsieve==2.8        # A modern CSS selector implementation for BeautifulSoup
+
+# == PDF Manipulation (Extracting Pages) ==
+# Used for extracting pages from existing PDFs as images.
+PyMuPDF==1.26.4
+pypdf==6.0.0          # Dependency for xhtml2pdf
+
+# == Image Handling ==
+# Used for processing and resizing images extracted from PDFs.
+Pillow==11.3.0
+
+# == ReportLab Toolkit (Dependency for xhtml2pdf) ==
+# The core engine used by xhtml2pdf to draw PDF documents.
+reportlab==4.4.3
+svglib==1.5.1         # For handling SVG images within PDFs
+tinycss2==1.4.0       # CSS parser, dependency of xhtml2pdf/svglib
+cssselect2==0.8.0     # Another CSS parser dependency
+
+# == Right-to-Left Language Support (Dependency for xhtml2pdf) ==
+# For correctly rendering languages like Arabic and Hebrew.
+arabic-reshaper==3.0.0
+python-bidi==0.6.6
+
+# == General Utilities & Dependencies ==
+# These are required by the libraries above for various tasks like networking,
+# date/time handling, and cryptography. It's best to keep them.
 certifi==2025.8.3
 cffi==1.17.1
 charset-normalizer==3.4.3
-click==8.2.1
 cryptography==45.0.6
-cssselect2==0.8.0
-docx==0.2.4
-Flask==3.1.2
-greenlet==3.2.4
-html5lib==1.1
 idna==3.10
-itsdangerous==2.2.0
-Jinja2==3.1.6
-lxml==6.0.1
-MarkupSafe==3.0.2
-numpy==1.26.4
-oscrypto==1.3.0
-pandas==2.3.2
-pdfkit==1.0.0
-pillow==11.3.0
-playwright==1.55.0
 pycparser==2.22
-pyee==13.0.0
-pyHanko==0.30.0
-pyhanko-certvalidator==0.28.0
-PyMuPDF==1.26.4
-pypdf==6.0.0
-python-bidi==0.6.6
 python-dateutil==2.9.0.post0
-python-docx==1.2.0
 pytz==2025.2
 PyYAML==6.0.2
-reportlab==4.4.3
 requests==2.32.5
 six==1.17.0
-soupsieve==2.8
-svglib==1.5.1
-tinycss2==1.4.0
 typing_extensions==4.15.0
 tzdata==2025.2
-tzlocal==5.3.1
-uritools==5.0.0
 urllib3==2.5.0
 webencodings==0.5.1
-Werkzeug==3.1.3
-xhtml2pdf==0.2.17
+# The packages below are likely dependencies of the above libraries.
+asn1crypto==1.5.1
+greenlet==3.2.4
+oscrypto==1.3.0
+tzlocal==5.3.1
+uritools==5.0.0
