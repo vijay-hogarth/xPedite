@@ -1,3 +1,7 @@
+# == Build Tools ==
+# For creating the executable file.
+pyinstaller
+
 # == Core Web Application ==
 # Flask is the web framework, and these are its essential components.
 Flask==3.1.2
