@@ -1,15 +1,38 @@
-const puppeteer = require('puppeteer');
+// Use puppeteer-core instead of puppeteer
+const puppeteer = require('puppeteer-core');
 const fs = require('fs');
+const os = require('os');
+const path = require('path');
+
+// Helper function to find the default path for Chrome
+function getChromeExecutablePath() {
+    if (os.platform() === 'win32') {
+        // Look for Chrome on Windows in common locations
+        const programFiles = process.env['ProgramFiles(x86)'] || process.env.ProgramFiles;
+        const chromePath = path.join(programFiles, 'Google', 'Chrome', 'Application', 'chrome.exe');
+        if (fs.existsSync(chromePath)) {
+            return chromePath;
+        }
+    } else if (os.platform() === 'darwin') {
+        // Standard path for Chrome on macOS
+        const chromePath = '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
+        if (fs.existsSync(chromePath)) {
+            return chromePath;
+        }
+    }
+    // Fallback if Chrome is not found in default locations
+    console.error('❌ Error: Google Chrome could not be found in its default location.');
+    process.exit(1);
+}
+
 
 async function generateExactPdf() {
-    // Parse arguments passed from Python
     const args = JSON.parse(process.argv[2]);
     const htmlPath = args.htmlPath;
     const outputPath = args.outputPath;
-    const deviceWidth = args.deviceWidth || 610; // default width if not provided
-    const viewType = args.viewType || 'desktop'; // 'mobile' or 'desktop'
+    const deviceWidth = args.deviceWidth || 610;
+    const viewType = args.viewType || 'desktop';
 
-    // Read the HTML content from the provided file path
     if (!htmlPath || !fs.existsSync(htmlPath)) {
         console.error('❌ Error: HTML input file path is missing or does not exist.');
         process.exit(1);
@@ -18,7 +41,12 @@ async function generateExactPdf() {
 
     let browser;
     try {
+        // Get the path to the user's installed Chrome
+        const executablePath = getChromeExecutablePath();
+
+        // Launch Puppeteer using the found Chrome executable
         browser = await puppeteer.launch({
+            executablePath, // <-- THIS IS THE IMPORTANT NEW PART
             headless: true,
             args: [
                 '--no-sandbox',
@@ -26,9 +54,10 @@ async function generateExactPdf() {
                 '--disable-dev-shm-usage'
             ]
         });
+
+        // ... (the rest of your code is exactly the same) ...
+
         const page = await browser.newPage();
-        
-        // Determine viewport width
         const defaultDesktopWidth = 600;
         const mobileWidth = 360;
         let viewportWidth;
@@ -46,15 +75,13 @@ async function generateExactPdf() {
             pdfTitle = 'Desktop View PDF';
         }
         
-        // Set initial viewport
         await page.setViewport({
             width: viewportWidth,
-            height: 800, // Initial height, will be adjusted
+            height: 800,
             deviceScaleFactor: deviceScaleFactor,
             isMobile: (viewType === 'mobile')
         });
-        
-        // Ensure HTML is complete
+
         let finalHtmlContent = htmlContent;
         if (!finalHtmlContent.includes('<html')) {
             finalHtmlContent = `<!DOCTYPE html><html><head></head><body>${finalHtmlContent}</body></html>`;
@@ -63,7 +90,6 @@ async function generateExactPdf() {
             finalHtmlContent = finalHtmlContent.replace('<body>', '<head></head><body>');
         }
         
-        // Add meta viewport for mobile scaling
         const metaViewportTag = `<meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">`;
         if (!finalHtmlContent.includes('<meta name="viewport"')) {
             const headEndIndex = finalHtmlContent.indexOf('</head>');
@@ -74,7 +100,6 @@ async function generateExactPdf() {
             }
         }
         
-        // Add title if missing
         const htmlTitleContent = pdfTitle.replace(' PDF', '');
         if (!finalHtmlContent.includes('<title>')) {
             const headStartTagIndex = finalHtmlContent.indexOf('<head>');
@@ -85,19 +110,16 @@ async function generateExactPdf() {
             }
         }
         
-        // Load HTML into Puppeteer
         await page.setContent(finalHtmlContent, { waitUntil: 'networkidle0' });
         await page.emulateMediaType('screen');
         
-        // Wait for images and fonts to be fully loaded
         await page.waitForFunction(() => {
             const images = Array.from(document.querySelectorAll('img'));
             return images.every(img => img.complete || img.naturalWidth === 0);
         }, { timeout: 10000 }).catch(() => console.log('Some images might not have loaded within timeout.'));
         await page.evaluateHandle('document.fonts.ready');
-        await new Promise(resolve => setTimeout(resolve, 500)); // Extra wait for rendering
+        await new Promise(resolve => setTimeout(resolve, 500));
         
-        // Measure exact content height
         const contentHeight = await page.evaluate(() => {
             let lastVisibleElement = null;
             let maxBottom = 0;
@@ -122,7 +144,6 @@ async function generateExactPdf() {
             return Math.ceil(document.body.getBoundingClientRect().bottom);
         });
         
-        // Adjust viewport to match content height
         await page.setViewport({
             width: viewportWidth,
             height: contentHeight,
@@ -130,11 +151,9 @@ async function generateExactPdf() {
             isMobile: (viewType === 'mobile')
         });
         
-        // Convert px -> inches for PDF size
         const pdfWidthInches = viewportWidth / 96;
         const pdfHeightInches = contentHeight / 96;
         
-        // Generate PDF
         await page.pdf({
             path: outputPath,
             printBackground: true,
