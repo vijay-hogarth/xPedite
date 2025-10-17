@@ -31,7 +31,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
           # Install Node.js dependencies inside the correct folder
-          npm install 
+          npm install --prefix puppeteer_pdf_generator
 
       - name: Build Windows executable
         run: >
@@ -39,7 +39,7 @@ jobs:
           --name="xPedite" 
           --add-data "templates;templates" 
           --add-data "puppeteer_pdf_generator;puppeteer_pdf_generator"
-          --add-data "node_modules;node_modules"
+          # --add-data "node_modules;node_modules"
           --hidden-import="reportlab.graphics.barcode.code93" 
           --hidden-import="reportlab.graphics.barcode.code128" 
           liveServer.py
@@ -80,7 +80,7 @@ jobs:
           --name="xPedite" 
           --add-data "templates:templates" 
           --add-data "puppeteer_pdf_generator:puppeteer_pdf_generator"
-          --add-data "node_modules:node_modules"
+          #--add-data "node_modules:node_modules"
           --hidden-import="reportlab.graphics.barcode.code93" 
           --hidden-import="reportlab.graphics.barcode.code128" 
           liveServer.py
