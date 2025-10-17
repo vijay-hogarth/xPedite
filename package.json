@@ -1,6 +1,15 @@
 {
+  "name": "puppeteer_pdf_generator",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
   "dependencies": {
-    "pdf-lib": "^1.17.1",
-    "puppeteer": "^24.18.0"
+    "puppeteer": "^24.17.1"
   }
 }
